@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bankapp-svc
+spec:
+  selector:
+    app: bankapp
+  type: NodePort
+  ports:
+  - port: 8080
+    nodePort: 30080
+    targetPort: 8080
+
