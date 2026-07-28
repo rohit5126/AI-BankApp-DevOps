@@ -48,3 +48,6 @@ spec:
             - name: MYSQL_USER
               value: root
 
+            - name: OLLAMA_URL
+              value: http://ollama:11434
+

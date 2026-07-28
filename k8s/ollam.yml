@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-deployment
+spec:
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+      - name: ollama-app
+        image: ollama/ollama
+        command:
+          - /bin/bash
+          - -c
+          - |
+            echo "renaming file from .so to .bak"
+            if [ -f /usr/lib/ollama/libggml-cpu-sapphirerapids.so ]; then
+              mv /usr/lib/ollama/libggml-cpu-sapphirerapids.so /usr/lib/ollama/libggml-cpu-sapphirerapids.so.bak
+            fi
+
+            echo "Starting Ollama server in background..."
+            /bin/ollama serve &
+            SERVER_PID=$!
+
+            echo "Waiting for Ollama server to become available..."
+            while ! (: </dev/tcp/127.0.0.1/11434) 2>/dev/null; do
+              sleep 1
+            done
+
+            echo "Pulling tinyllama model..."
+            /bin/ollama pull tinyllama
+
+            echo "Ollama is ready!"
+            wait $SERVER_PID
+        env:
+          - name: OLLAMA_CPU_AVX2
+            value: "false"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        ports:
+          - containerPort: 11434
+        volumeMounts:
+          - name: ollama-data
+            mountPath: "/root/.ollama"
+        readinessProbe:
+            exec:
+              command: ["sh","-c", "ollama list"]
+            initialDelaySeconds: 30
+            periodSeconds: 20
+      volumes:
+        - name: ollama-data
+          emptyDir: {}
+
