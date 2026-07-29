@@ -1,0 +1,73 @@
+# Bankapp Configuration
+bankapp:
+  replicaCount: 2
+  image: 
+    repository: rohit5126/bankapp
+    tags: "latest"
+    pullPolicy: Always
+  resources:  
+    requests:
+      memory: "256Mi"
+      cpu: "256m"
+    limits:
+      memory: "512Mi"
+      cpu: "512m"
+  service:
+    type: NodePort
+    port: 8080
+    nodePort: 30080
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxreplica: 4
+    targetCPUUtilization: 70
+
+#mysql stateful
+
+mysql:
+  replicaCount: 1
+  image:  
+    repository: mysql
+    tags: "8.0"
+  service:
+    type: ClusterIP
+    port: 3306
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard
+
+  
+
+#ollama deployment
+
+ollama:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ollama/ollama
+    tags: "latest"
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  service:
+    type: ClusterIP
+    port: 11434
+
+#secrets
+
+secret: 
+  MYSQL_ROOT_PASSWORD: bankapp
+  MYSQL_DATABASE: bankapp
+
+#configMap
+
+config:
+  MYSQL_HOST: mysql-state-0.mysql.default.svc.cluster.local
+
+
+

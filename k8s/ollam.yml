@@ -56,7 +56,8 @@ spec:
             exec:
               command: ["sh","-c", "ollama list"]
             initialDelaySeconds: 30
-            periodSeconds: 20
+            periodSeconds: 50
+            timeoutSeconds: 50
       volumes:
         - name: ollama-data
           emptyDir: {}

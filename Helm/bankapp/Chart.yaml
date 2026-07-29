@@ -1,0 +1,15 @@
+apiVersion: v2
+name: bankapp
+description: A SpringBoot bankapp application with mysql DB and with AI ChatBot using Ollama.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+maintainers:
+  - name: RohitKumar
+    url: https://github.com/rohit5126/AI-BankApp-DevOps.git
+keywords:
+  - bankapp
+  - spring-boot
+  - mysql
+  - ollama
+  - ai

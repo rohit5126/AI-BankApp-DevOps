@@ -1,0 +1,116 @@
+{{- if .Values.ollama.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-deployment
+spec:
+  replicas: {{ .Values.ollama.replicaCount }}
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+      - name: ollama-app
+        image: "{{ .Values.ollama.image.repository }}:{{ .Values.ollama.image.tags }}"
+        command:
+          - /bin/bash
+          - -c
+          - |
+            echo "renaming file from .so to .bak"
+            if [ -f /usr/lib/ollama/libggml-cpu-sapphirerapids.so ]; then
+              mv /usr/lib/ollama/libggml-cpu-sapphirerapids.so /usr/lib/ollama/libggml-cpu-sapphirerapids.so.bak
+            fi
+
+            echo "Starting Ollama server in background..."
+            /bin/ollama serve &
+            SERVER_PID=$!
+
+            echo "Waiting for Ollama server to become available..."
+            while ! (: </dev/tcp/127.0.0.1/11434) 2>/dev/null; do
+              sleep 1
+            done
+
+            echo "Pulling tinyllama model..."
+            /bin/ollama pull tinyllama
+
+            echo "Ollama is ready!"
+            wait $SERVER_PID
+        env:
+          - name: OLLAMA_CPU_AVX2
+            value: "false"
+        {{- with .Values.ollama.resources }}
+        resources:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
+        ports:
+          - containerPort: {{ .Values.ollama.service.port }}
+        volumeMounts:
+          - name: ollama-data
+            mountPath: "/root/.ollama"
+        readinessProbe:
+            exec:
+              command: ["sh","-c", "ollama list"]
+            initialDelaySeconds: 30
+            periodSeconds: 50
+            timeoutSeconds: 50
+      volumes:
+        - name: ollama-data
+          emptyDir: {}
+{{- end }}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bankapp-dep
+  labels: 
+    app: bankapp
+spec:
+  replicas: {{ .Values.bankapp.replicaCount }}
+  selector:
+    matchLabels:
+      app: bankapp
+  template:
+    metadata:
+      labels:
+        app: bankapp
+    spec:
+      containers:
+        - name: bankapp-container
+          image: "{{ .Values.bankapp.image.repository }}:{{ .Values.bankapp.image.tags }}"
+          ports:
+            - containerPort: {{ .Values.bankapp.service.port }}
+          {{- with .Values.bankapp.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env: 
+            - name: MYSQL_PASSWORD
+              valueFrom: 
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+            
+            - name: MYSQL_DATABASE
+              valueFrom: 
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_DATABASE
+            - name: MYSQL_HOST
+              valueFrom:  
+                configMapKeyRef:
+                  name: mysql-host
+                  key: MYSQL_HOST
+            - name: MYSQL_PORT
+              value: {{ .Values.mysql.service.port | quote }}
+            - name: MYSQL_USER
+              value: root
+
+            - name: OLLAMA_URL
+              value: http://ollama:11434
+
