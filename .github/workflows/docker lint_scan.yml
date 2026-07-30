@@ -21,4 +21,18 @@ jobs:
     steps:
       - name: code checkout
         uses: actions/checkout@v6
-      - 
+        
+      - name: docker login
+        uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: dokcer build 
+        run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/backend:testing .
+
+      - name: trivy Image Scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ vars.DOCKERHUB_USERNAME }}/backend:testing
+          trivy-config: 'trivy.yaml'
