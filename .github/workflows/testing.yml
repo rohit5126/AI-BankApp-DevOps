@@ -1,6 +1,6 @@
 name: testing
 on: 
-  workflow_dispatch:
+  push:
     
 
 jobs:
@@ -22,16 +22,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Cache dependency-check DB
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository/org/owasp/dependency-check-data
-          key: dep-check-db-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: |
-            dep-check-db-${{ runner.os }}-
 
-      - name: dependency check
-        run: mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${{ secrets.NVD_API_KEY }}
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
 
       - name: code linting using checkstyle
         run: mvn checkstyle:check -Dcheckstyle.failOnViolation=false
