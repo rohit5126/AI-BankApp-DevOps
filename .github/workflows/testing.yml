@@ -21,6 +21,19 @@ jobs:
         uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---- Cache the local Maven repo ----
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+      
+      # ---- Pre-resolve all dependencies into ~/.m2 ----
+      - name: Resolve dependencies
+        run: mvn -B -ntp dependency:go-offline
           
 
       - name: Trivy scan
