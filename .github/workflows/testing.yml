@@ -22,7 +22,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: dependency check
-        run: mvn dependency-check:check
+        run: mvn org.owasp:dependency-check-maven:check
 
       - name: code linting using checkstyle
         run: mvn checkstyle:check -Dcheckstyle.failOnViolation=false
