@@ -1,6 +1,7 @@
 name: testing
 on: 
   workflow_dispatch:
+    
 
 jobs:
   lint:
@@ -10,11 +11,27 @@ jobs:
         uses: actions/checkout@v6
 
       - name: setup jdk
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
+
+      - name: Git leaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Cache dependency-check DB
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: dep-check-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            dep-check-db-${{ runner.os }}-
+
+      - name: dependency check
+        run: mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${{ secrets.NVD_API_KEY }}
 
       - name: code linting using checkstyle
         run: mvn checkstyle:check -Dcheckstyle.failOnViolation=false
