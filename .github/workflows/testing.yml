@@ -1,7 +1,7 @@
 name: testing
 on: 
-  push:
-    branches: actions
+  workflow_dispatch:
+    
 
 jobs:
   lint:
