@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: code checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: setup jdk
         uses: actions/setup-java@v6
@@ -15,6 +17,14 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
+
+      - name: Git leaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: dependency check
+        run: mvn dependency-check:check
 
       - name: code linting using checkstyle
         run: mvn checkstyle:check -Dcheckstyle.failOnViolation=false
