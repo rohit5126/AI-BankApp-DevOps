@@ -14,8 +14,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Complie
+        run: |
+          mvn clean compile
+
       - name: Sonar-Quality-check
         uses: SonarSource/sonarqube-scan-action@v8.2.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ inputs.SONAR_HOST_URL }}
+        
+          
