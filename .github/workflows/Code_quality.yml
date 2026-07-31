@@ -1,0 +1,53 @@
+name: code_quality_and_git_leaks
+on: 
+  workflow_call:
+    inputs:
+      java-version: { default: '21', type: string }
+      distribution: { default: 'temurin', type: string }
+      cache: { required: true, type: string }
+  
+jobs:
+  Code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: code checkout
+        uses: actions/checkout@v6
+
+      - name: setup jdk
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: ${{ inputs.distribution }}
+          cache: ${{ inputs.cache }}
+
+      - name: Git leaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---- Cache the local Maven repo ----
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+      
+      # ---- Pre-resolve all dependencies into ~/.m2 ----
+      - name: Resolve dependencies
+        run: mvn -B -ntp dependency:go-offline
+          
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+
+      - name: code linting using checkstyle
+        run: mvn checkstyle:check -Dcheckstyle.failOnViolation=false
+
+      - name: build code with maven
+        run: chmod +x mvnw && ./mvnw clean package -DskipTests -B 
+        

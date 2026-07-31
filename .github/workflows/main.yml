@@ -1,0 +1,33 @@
+name: all-check-passed-pushed
+on: 
+  push:
+    branches: [actions]
+
+jobs:
+  Code-Quality-Check:
+    uses: ./.github/workflows/Code_quality.yml
+    with:
+      cache: 'maven' 
+
+  Docker-Lint-Scan:
+    needs: [Code-Quality-Check]
+    uses: ./.github/workflows/docker-lint-scan.yml
+    secrets: 
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  Sonar-Quality-Scan:
+    needs: [Docker-Lint-Scan]
+    uses: ./.github/workflows/SonarScan.yml
+    with:
+      SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+    secrets: 
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      
+  Docker-Build-Push:
+    needs: [Sonar-Quality-Scan]
+    uses: ./.github/workflows/docker-build-push.yml
+    secrets: 
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  
