@@ -21,12 +21,14 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Complie
-        run: |
-          mvn clean compile
+      - name: Compile
+        run: mvn clean compile
 
       - name: Sonar-Quality-check
         uses: SonarSource/sonarqube-scan-action@v8.2.0
+        with:
+          args: >
+            -Dsonar.java.binaries=target/classes
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ inputs.SONAR_HOST_URL }}
