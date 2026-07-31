@@ -1,0 +1,21 @@
+name: Sonar-Scan
+on:
+  workflow_call:
+    inputs:
+      SONAR_HOST_URL: { required: true,type: string }
+    secrets:
+      SONAR_TOKEN: { required: true }
+jobs:
+  Sonar-Scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code-Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Sonar-Quality-check
+        uses: SonarSource/sonarqube-scan-action@v8.2.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ inputs.SONAR_HOST_URL }}
