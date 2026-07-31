@@ -17,7 +17,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   Sonar-Quality-Scan:
-    needs: [Code-Quality-Check]
+    needs: [Docker-Lint-Scan]
     uses: ./.github/workflows/SonarScan.yml
     with:
       SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
@@ -25,7 +25,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       
   Docker-Build-Push:
-    needs: [Docker-Lint-Scan]
+    needs: [Sonar-Quality-Scan]
     uses: ./.github/workflows/docker-build-push.yml
     secrets: 
       DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
