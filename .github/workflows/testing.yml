@@ -1,10 +1,13 @@
-name: testing
+name: code_quality_and_git_leaks
 on: 
-  push:
-    
-
+  workflow_call:
+    inputs:
+      java-version: { default: '21', type: sting }
+      distribution: { default: 'temurin', type: string }
+      cache: { required: true, type: string }
+  
 jobs:
-  lint:
+  Code-quality:
     runs-on: ubuntu-latest
     steps:
       - name: code checkout
