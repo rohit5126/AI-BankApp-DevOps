@@ -10,7 +10,13 @@ jobs:
       cache: 'maven' 
 
   Docker-Lint-Scan:
-    uses: .github/workflows/docker-lint-scan.yml
+    uses: ./.github/workflows/docker-lint-scan.yml
+    secrets: 
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+  Docker-Build-Push:
+    uses: ./.github/workflows/docker-build-push.yml
     secrets: 
       DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
