@@ -1,7 +1,11 @@
 name: dokcer_lint_trivy_scan
 
 on: 
-  workflow_dispatch:
+  workflow_call: 
+    secrets:
+      DOCKERHUB_USERNAME: { required: true }
+      DOCKERHUB_TOKEN: { required: true }
+      
 
 jobs:
   docker_lint:
@@ -25,14 +29,14 @@ jobs:
       - name: docker login
         uses: docker/login-action@v4
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: dokcer build 
-        run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/backend:testing .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend:testing .
 
       - name: trivy Image Scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ vars.DOCKERHUB_USERNAME }}/backend:testing
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/backend:testing
           trivy-config: 'trivy.yaml'
