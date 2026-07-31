@@ -1,0 +1,17 @@
+name: all-check-passed-pushed
+on: 
+  push:
+    branches: [actions]
+
+jobs:
+  Code-Quality-Check:
+    uses: ./.github/workflows/Code_quality.yml
+    with:
+      cache: 'maven' 
+
+  Docker-Lint-Scan:
+    uses: .github/workflows/docker-lint-scan.yml
+    secrets: 
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  
