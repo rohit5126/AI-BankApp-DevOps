@@ -6,9 +6,7 @@ metadata:
 spec:
   selector:
     app: bankapp
-  type: NodePort
   ports:
-  - port: 8080
-    nodePort: 30080
+  - port: 80
     targetPort: 8080
 

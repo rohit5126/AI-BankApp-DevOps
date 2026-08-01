@@ -1,0 +1,108 @@
+#default deny all, then allow explicitly
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: newbankapp
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: 
+  name: bankapp-policy
+  namespace: newbankapp
+spec: 
+  podSelector:
+    matchLabels:
+      app: bankapp
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+          podSelector:
+            matchLabels:
+              gateway.envoyproxy.io/owning-gateway-namespace: newbankapp
+              gateway.envoyproxy.io/owning-gateway-name: bankapp-gateway 
+      ports:
+        - port: 8080
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: ollama
+      ports:
+        - port: 11434
+
+    - to:
+        - podSelector:
+            matchLabels:
+              app: mysql-app
+      ports:
+        - port: 3306
+
+    - to: []                        # allow DNS resolution
+      ports:
+        - port: 53
+          protocol: UDP
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: 
+  name: ollama-policy
+  namespace: newbankapp
+spec: 
+  podSelector:
+    matchLabels:
+      app: ollama
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from: 
+        - podSelector:
+            matchLabels:
+              app: bankapp
+      ports:
+        - port: 11434
+  egress:
+  - to: []
+    ports:
+      - port: 53
+        protocol: UDP
+  - to: []
+    ports:
+      - port: 443
+        protocol: TCP
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mysql-policy
+  namespace: newbankapp
+spec:
+  podSelector:
+    matchLabels:
+      app: mysql-app
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: bankapp
+      ports:
+        - port: 3306
