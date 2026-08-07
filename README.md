@@ -2,20 +2,20 @@
 
 # DevSecOps Banking Application
 
-A high-performance, containerized financial platform built with Spring Boot 3, Java 21, and integrated Contextual AI. This project implements a secure "DevSecOps Pipeline" using GitHub Actions, OIDC authentication, and AWS managed services.
-
-[![Java Version](https://img.shields.io/badge/Java-21-blue.svg)](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.1-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-orange.svg)](.github/workflows/devsecops.yml)
-[![REDIS](https://img.shields.io/badge/Caching-Redis-red.svg)](#phase-3-security-and-identity-configuration)
-
-</div>
+A high-performance, containerized financial platform built with Spring Boot 3, Java 21, and integrated Contextual AI. This project implements a secure "DevSecOps Pipeline" using GitHub Actions, OIDC authentication, AWS managed services, and a fully GitOps-driven deployment via **ArgoCD (App of Apps pattern)**.
 
 ![dashboard](screenshots/1.png)
 
+<img width="1920" height="1040" alt="Screenshot From 2026-08-07 12-22-01" src="https://github.com/user-attachments/assets/b7b0bfe0-1d52-461b-8298-583e38a43b07" />
+
+
+</div>
+
+
+
 ---
 
-This README explains the full architecture, exactly how a request travels through the system, and how to set the whole project up from scratch on a new server/cluster.
+This README explains the full architecture, exactly how a request travels through the system, how the entire platform is deployed and reconciled via ArgoCD, and how to set the whole project up from scratch on a new server/cluster.
 
 ---
 
@@ -28,6 +28,7 @@ BankApp is a demo banking web app built with:
 - **AI assistant:** Ollama running a local `tinyllama` model, answering questions about the user's balance/transactions via a chat widget
 - **Frontend:** Server-rendered Thymeleaf templates (dashboard, login, register, transactions)
 - **Infrastructure:** Terraform-provisioned AWS EKS cluster, Envoy Gateway (Kubernetes Gateway API) as the ingress layer
+- **GitOps / CD:** ArgoCD, using the **App of Apps** pattern to declaratively manage BankApp, the monitoring stack, and Envoy Gateway itself — all reconciled continuously from Git, with zero manual `kubectl apply` steps after bootstrap
 
 ---
 
@@ -70,9 +71,28 @@ BankApp is a demo banking web app built with:
       │ Ollama StatefulSet │  local LLM (tinyllama),
       │(AI chat assistant) │  called by the app over HTTP
       └────────────────────┘
+
+                         Everything above is deployed and
+                         continuously reconciled by ArgoCD ▼
+
+      ┌───────────────────────────────────────────────────────┐
+      │                    ArgoCD (argocd ns)                 │
+      │                                                        │
+      │   ┌──────────────────────────────────────────────┐    │
+      │   │  root-app  (App of Apps)                      │    │
+      │   │  points at  argocd/apps/                       │    │
+      │   └───────────┬───────────────┬────────────────┬──┘    │
+      │               ▼               ▼                ▼       │
+      │        ┌───────────┐  ┌───────────────┐  ┌────────────┐│
+      │        │ bankapp   │  │ envoy-gateway │  │ monitoring ││
+      │        │ Application│ │ Application   │  │ Application││
+      │        └───────────┘  └───────────────┘  └────────────┘│
+      └───────────────────────────────────────────────────────┘
 ```
 
-All internal traffic (bankapp → MySQL, bankapp → Redis, bankapp → Ollama) stays inside the cluster. Only the Envoy Gateway's load balancer is internet-facing.
+All internal traffic (bankapp → MySQL, bankapp → Redis, bankapp → Ollama) stays inside the cluster. Only the Envoy Gateway's load balancer is internet-facing. ArgoCD itself is only reachable via port-forward / its own internal Gateway route (see §9.6), it is not exposed the same way as the bank app.
+
+![argocd-app-of-apps-tree](screenshots/argocd-app-of-apps-tree.png)
 
 ---
 
@@ -135,7 +155,7 @@ All internal traffic (bankapp → MySQL, bankapp → Redis, bankapp → Ollama) 
 AI-BankApp-DevOps/
 ├── Dockerfile                          # multi-stage build: Maven build → slim JRE runtime image
 ├── docker-compose.yml                  # local dev stack (app + MySQL + Ollama)
-├── k8s/                                 # Kubernetes manifests for the EKS deployment
+├── k8s/                                 # raw Kubernetes manifests (source of truth ArgoCD syncs from)
 │   ├── namespace.yml
 │   ├── secrets.yml                     # MySQL credentials (Secret) + host ConfigMap
 │   ├── mysql-stata.yml                 # MySQL headless Service + StatefulSet + PVC
@@ -147,6 +167,18 @@ AI-BankApp-DevOps/
 │   ├── gateway.yml                     # GatewayClass + Gateway + HTTPRoute (Envoy Gateway)
 │   └── networkpolicy.yml               # default-deny baseline + explicit allow rules
 ├── Helm/bankapp/                       # Helm chart packaging of the above manifests
+├── argocd/                             # GitOps definitions — the App of Apps pattern
+│   ├── root-app.yml                    # the single "bootstrap" Application (points at argocd/apps)
+│   ├── apps/
+│   │   ├── bankapp-app.yml             # ArgoCD Application → Helm/bankapp (or k8s/)
+│   │   ├── envoy-gateway-app.yml       # ArgoCD Application → Envoy Gateway Helm chart + gateway.yml
+│   │   └── monitoring-app.yml          # ArgoCD Application → kube-prometheus-stack + dashboards
+│   └── projects/
+│       └── bankapp-project.yml         # AppProject: scopes repos/namespaces/resource kinds allowed
+├── monitoring/                         # values files & extra manifests for the monitoring stack
+│   ├── kube-prometheus-stack-values.yml
+│   ├── dashboards/                     # custom Grafana dashboard JSON for BankApp
+│   └── servicemonitors.yml             # ServiceMonitor CRs for bankapp/mysql/redis metrics
 ├── scripts/ollama-setup.sh             # helper script for local Ollama setup
 ├── OLLAMA_INFO.md                      # notes on the Ollama integration
 └── troubleshooting.md                  # known issues and their fixes
@@ -158,25 +190,24 @@ AI-BankApp-DevOps/
 
 - AWS account with an existing EKS cluster (v1.30+), or access to provision one via Terraform
 - `kubectl`, configured against the target cluster.
-  
+
   ```
   install kubectl
   aws eks update-kubeconfig --name <cluster_name> --region eu-north-1
   ```
-- `helm` - to install envoy gateway.
+- `helm` - used to bootstrap ArgoCD itself (Envoy Gateway and the monitoring stack are then installed *by* ArgoCD, not manually).
+- `argocd` CLI (optional but recommended) - for logging in and syncing apps from the terminal.
 - Docker (for building the app image).
 - Java 21 + Maven (only needed for local, non-container development).
-- Envoy Gateway installed on the cluster (Gateway API CRDs + the `envoy-gateway` controller running in `envoy-gateway-system`).
-  
-  ```
-  helm install eg oci://docker.io/envoyproxy/gateway-helm --version v1.1.2 -n envoy-gateway-system --create-namespace
-  ```
-  
-- An EBS CSI driver installed on the cluster (required for MySQL's and Ollama's persistent volumes).
+- An EBS CSI driver installed on the cluster (required for MySQL's, Ollama's, and Prometheus's persistent volumes).
+
+> With the GitOps flow in §9, you no longer need to manually install Envoy Gateway with Helm — ArgoCD does it for you as one of the managed child Applications. The manual steps in §6 are kept below for reference / non-GitOps setups, but §9 is the recommended path for a new cluster.
 
 ---
 
-## 6. Setting this up on a new cluster/server — step by step
+## 6. Setting this up manually on a new cluster/server — step by step
+
+> Use this section if you want to deploy without ArgoCD. If you want the fully automated, self-healing GitOps setup, skip to **§9**.
 
 ### Step 1 — Clone the repo
 
@@ -199,7 +230,6 @@ If you use a different image name/tag, update the `image:` field in `k8s/bankapp
 ```bash
 kubectl get nodes                                   # cluster is reachable
 kubectl get pods -n kube-system | grep ebs-csi       # EBS CSI driver is running
-kubectl get pods -n envoy-gateway-system              # Envoy Gateway controller is running
 kubectl get storageclass                              # a usable StorageClass (e.g. gp2/gp3) exists
 ```
 
@@ -248,9 +278,10 @@ kubectl apply -f k8s/bankapp-service.yml
 kubectl rollout status deployment/bankapp-dep -n newbankapp
 ```
 
-### Step 10 — Expose it via Envoy Gateway
+### Step 10 — Install Envoy Gateway and expose the app
 
 ```bash
+helm install eg oci://docker.io/envoyproxy/gateway-helm --version v1.1.2 -n envoy-gateway-system --create-namespace
 kubectl apply -f k8s/gateway.yml
 kubectl get gateway -n newbankapp        # wait for PROGRAMMED: True and an ELB address
 ```
@@ -295,5 +326,82 @@ The app will be reachable at `http://localhost:8080`. Session storage falls back
 | `OLLAMA_URL` | app | Ollama Service base URL |
 
 All of these are wired via `env:` blocks in `k8s/bankapp-deployment.yml`, sourced from the `mysql-secret` Secret and `mysql-host` ConfigMap where applicable.
+
+---
+
+## 9. GitOps deployment with ArgoCD (App of Apps)
+
+This is the recommended, fully automated way to stand up the entire platform — BankApp, Envoy Gateway, and the monitoring stack — on a brand-new cluster. After the one-time bootstrap in §9.2, **every subsequent change is a `git push`**: ArgoCD detects the diff and reconciles the cluster automatically, with no further `kubectl apply` or `helm install` commands.
+
+### 9.1 Why App of Apps
+
+Instead of registering three separate ArgoCD Applications by hand, we register **one root Application** (`root-app`) whose only job is to point at the `argocd/apps/` directory in this repo. Every YAML file ArgoCD finds there is itself an `Application` manifest, so ArgoCD recursively creates and manages:
+
+- **`bankapp`** — the Spring Boot app, MySQL, Redis, Ollama, and the app's Service/NetworkPolicy
+- **`envoy-gateway`** — the Envoy Gateway controller (via its Helm chart) plus the `Gateway`/`HTTPRoute` objects that expose BankApp to the internet
+- **`monitoring`** — kube-prometheus-stack (Prometheus, Grafana, Alertmanager) plus `ServiceMonitor`s and dashboards for BankApp, MySQL, and Redis
+
+Add, remove, or update a child app by editing files under `argocd/apps/` — you never touch ArgoCD's UI/CLI to register a new component again.
+
+<img width="1918" height="1041" alt="Screenshot From 2026-08-06 21-14-37" src="https://github.com/user-attachments/assets/1499063b-26e3-4b34-8258-b89d268ba79b" />
+
+### 9.2 One-time bootstrap
+
+Everything below is run **once** per cluster. After this, the platform is entirely self-managing.
+
+```bash
+# 1. Install ArgoCD itself
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl rollout status deployment/argocd-server -n argocd
+
+# 2. Grab the initial admin password
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d; echo
+
+# 3. Log in with the ArgoCD CLI (port-forward first if not yet exposed)
+kubectl port-forward svc/argocd-server -n argocd 8080:443 &
+argocd login localhost:8080 --username admin --insecure
+
+# 4. Apply the AppProject (scopes what the apps below are allowed to touch)
+kubectl apply -f argocd/projects/bankapp-project.yml
+
+# 5. Apply the single root Application — this is the ONLY manifest you apply by hand
+kubectl apply -f argocd/root-app.yml
+```
+
+That's it. `root-app` syncs, discovers `bankapp-app.yml`, `envoy-gateway-app.yml`, and `monitoring-app.yml` under `argocd/apps/`, and creates all three as child Applications — which in turn deploy every component described in §2.
+
+
+
+### 9.5 What the monitoring stack gives you
+
+- **Prometheus** scrapes BankApp's `/actuator/prometheus` endpoint, plus MySQL and Redis exporters, via the `ServiceMonitor`s in `monitoring/servicemonitors.yml`.
+- **Grafana** ships with pre-provisioned dashboards from `monitoring/dashboards/` — request latency, JVM heap, pod restarts, MySQL connections, Redis memory, and login success/failure rate.
+- **Alertmanager** is wired for basic alerts (pod crash-looping, high error rate, PVC nearing capacity) — extend `kube-prometheus-stack-values.yml` to add your own alert routes (Slack/email/etc).
+
+<img width="1918" height="1041" alt="Screenshot From 2026-08-06 21-15-31" src="https://github.com/user-attachments/assets/dd0f592a-ab79-4739-b476-17e76faa6631" />
+
+### 9.6 Accessing the ArgoCD and Grafana UIs
+
+Grafana no longer needs a port-forward — it's exposed on the same domain and Gateway as BankApp, under the /monitoring subpath, via an additional HTTPRoute. ArgoCD's UI is still reached via port-forward (or add a similar HTTPRoute for it under an internal/admin hostname if you want it permanently reachable too):
+
+Notes:
+
+parentRefs is cross-namespace (monitoring → the Gateway in newbankapp), so the Gateway needs a ReferenceGrant (or an allowedRoutes.namespaces selector) permitting routes from the monitoring namespace to attach — add this alongside gateway.yml if it isn't already permissive.
+The URLRewrite filter strips the /monitoring prefix before forwarding, since Grafana serves from / by default. Alternatively, set GF_SERVER_ROOT_URL=https://<your-domain>/monitoring and GF_SERVER_SERVE_FROM_SUB_PATH=true in the Grafana values (monitoring/kube-prometheus-stack-values.yml) and drop the rewrite filter — either approach works, don't mix both.
+Because this route lives in Git (k8s/monitoring-route.yml, referenced by monitoring-app.yml), it's reconciled by ArgoCD like everything else — no manual kubectl apply needed after bootstrap.
+
+### 9.7 Day-2 operations — this is the whole point of GitOps
+
+| You want to... | You do... |
+|---|---|
+| Ship a new BankApp image version | Update the tag in `Helm/bankapp/values.yaml`, commit, push |
+| Scale replicas | Edit `replicaCount` in the Helm values, commit, push |
+| Add a Grafana dashboard | Drop a new JSON file in `monitoring/dashboards/`, commit, push |
+| Roll back a bad deploy | `argocd app rollback bankapp <REVISION>`, or `git revert` the commit |
+| Check drift/health | `argocd app get bankapp` or the ArgoCD UI's app tree |
+
+Any manual `kubectl edit`/`kubectl scale` against a resource ArgoCD manages will be **automatically reverted** by `selfHeal: true` within the next sync interval — Git is the single source of truth.
 
 ---
