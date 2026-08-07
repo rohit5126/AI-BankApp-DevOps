@@ -244,7 +244,54 @@ kubectl exec -it mysql-state-0 -n newbankapp -- mysql -u root -p$MYSQL_ROOT_PASS
 ---
 
 
+## Issue 8 — Grafana PVC stuck Pending: no storage class
 
+Symptom:
 
+FailedBinding: no persistent volumes available for this claim and no storage class is set
 
+Root cause: grafana.persistence was enabled with a size, but no storageClassName was set, and the cluster's only StorageClass (gp2) was not marked as the cluster default.
 
+Fix (initial):
+
+bash
+```
+kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+```
+Follow-up problem: Marking gp2 default after the PVC already existed did not fix it — Kubernetes only evaluates the DefaultStorageClass admission controller at PVC creation time. The existing PVC remained permanently unbound with storageClassName: nil.
+
+Fix (final):
+
+bash
+```
+kubectl delete pod -n monitoring kube-prometheus-stack-grafana-<hash>
+kubectl delete pvc -n monitoring kube-prometheus-stack-grafana
+```
+Let ArgoCD (selfHeal: true) recreate both — new PVC picked up the default StorageClass correctly.
+
+Best-practice fix (applied permanently): Set storageClassName explicitly in Helm values rather than relying on a cluster-wide default:
+```
+yaml
+grafana:
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClassName: gp2
+```
+
+## Issue 5 — Grafana login redirect loop (subpath routing)
+
+Symptom: Accessing Grafana via http://<gateway-address>/monitoring bounced back to the login page after entering credentials.
+
+Root cause: Grafana defaults to assuming it's served from /. Without telling it that it's being served from a subpath, cookie/redirect paths mismatch and the session never sticks.
+
+Fix: Added subpath config to grafana.grafana.ini:
+```
+yaml
+grafana:
+  grafana.ini:
+    server:
+      domain: <gateway-address>
+      root_url: "%(protocol)s://%(domain)s/monitoring/"
+      serve_from_sub_path: true
+```
