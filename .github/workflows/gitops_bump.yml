@@ -1,0 +1,47 @@
+name: gitops-image-bump
+
+on:
+  workflow_call:
+    inputs:
+      Tag: { required: true, type: string }
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: write
+    steps:
+      - name: code checkout
+        uses: actions/checkout@v6
+
+      - name: 'Setup yq'
+        uses: dcarbone/install-yq-action@v1
+        with:
+          version: "v4.44.3"
+
+      - name: 'Check yq'
+        run: |
+          which yq
+          yq --version
+
+      - name: update deployment image
+        env:
+          Docker_user: ${{ vars.DOCKERHUB_USERNAME }}
+          tags: ${{ inputs.Tag }}
+
+        run: |
+          yq -i '.spec.template.spec.containers[0].image = env(Docker_user) + "/bankapp:" + env(tags)' k8s/bankapp-deployment.yml
+
+      - name: Commit and Push Changes
+        run: |
+          # 1. Identify the virtual bot making the change
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 2. Stage, commit, and push the modified deployment file
+          git add k8s/bankapp-deployment.yml
+          git commit -m "chore: update bankapp image tag to latest code [skip ci]"
+          git push
+
+
+    

@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: bankapp-svc
   namespace: newbankapp
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   selector:
     app: bankapp

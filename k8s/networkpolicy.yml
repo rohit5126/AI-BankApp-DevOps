@@ -4,6 +4,8 @@ kind: NetworkPolicy
 metadata:
   name: default-deny-all
   namespace: newbankapp
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   podSelector: {}
   policyTypes:
@@ -50,10 +52,39 @@ spec:
       ports:
         - port: 3306
 
+    - to:
+        - podSelector:  
+            matchLabels:
+              app: redis 
+      ports:    
+        - port: 6379
+
     - to: []                        # allow DNS resolution
       ports:
         - port: 53
           protocol: UDP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: 
+  name: redis-policy
+  namespace: newbankapp
+spec:   
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+    - Ingress 
+  ingress:
+    - from: 
+        - podSelector:
+            matchLabels:
+              app: bankapp
+      ports:  
+        - port: 6379
+        
+
 
 ---
 

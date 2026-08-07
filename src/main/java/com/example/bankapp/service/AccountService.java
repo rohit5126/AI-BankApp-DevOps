@@ -30,6 +30,11 @@ public class AccountService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public Account getAccountByUsername(String username) {
+    return accountRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return accountRepository.findByUsername(username)
@@ -46,7 +51,8 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public void deposit(Account account, BigDecimal amount) {
+    public void deposit(String username, BigDecimal amount) {
+        Account account = getAccountByUsername(username);
         account.setBalance(account.getBalance().add(amount));
         accountRepository.save(account);
 
@@ -55,7 +61,8 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public boolean withdraw(Account account, BigDecimal amount) {
+    public boolean withdraw(String username, BigDecimal amount) {
+        Account account = getAccountByUsername(username);
         if (account.getBalance().compareTo(amount) < 0) {
             return false;
         }
@@ -68,10 +75,11 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public String transferAmount(Account from, String toUsername, BigDecimal amount) {
-        if (from.getUsername().equals(toUsername)) {
+    public String transferAmount(String fromUsername, String toUsername, BigDecimal amount) {
+        if (fromUsername.equals(toUsername)) {
             return "Cannot transfer to yourself.";
         }
+        Account from = getAccountByUsername(fromUsername);
         if (from.getBalance().compareTo(amount) < 0) {
             return "Insufficient funds.";
         }

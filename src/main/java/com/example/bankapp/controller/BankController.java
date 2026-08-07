@@ -44,7 +44,8 @@ public class BankController {
 
     @GetMapping("/dashboard")
     public String dashboard(@AuthenticationPrincipal Account account, Model model) {
-        model.addAttribute("account", account);
+        Account freshAccount = accountService.getAccountByUsername(account.getUsername());
+        model.addAttribute("account", freshAccount);
         return "dashboard";
     }
 
@@ -52,7 +53,7 @@ public class BankController {
     public String deposit(@AuthenticationPrincipal Account account,
                           @RequestParam BigDecimal amount,
                           RedirectAttributes redirectAttributes) {
-        accountService.deposit(account, amount);
+        accountService.deposit(account.getUsername(), amount);
         return "redirect:/dashboard";
     }
 
@@ -60,7 +61,7 @@ public class BankController {
     public String withdraw(@AuthenticationPrincipal Account account,
                            @RequestParam BigDecimal amount,
                            RedirectAttributes redirectAttributes) {
-        if (!accountService.withdraw(account, amount)) {
+        if (!accountService.withdraw(account.getUsername(), amount)) {
             redirectAttributes.addFlashAttribute("error", "Insufficient funds.");
         }
         return "redirect:/dashboard";
@@ -71,7 +72,7 @@ public class BankController {
                            @RequestParam String toUsername,
                            @RequestParam BigDecimal amount,
                            RedirectAttributes redirectAttributes) {
-        String error = accountService.transferAmount(account, toUsername, amount);
+        String error = accountService.transferAmount(account.getUsername(), toUsername, amount);
         if (error != null) {
             redirectAttributes.addFlashAttribute("error", error);
         }

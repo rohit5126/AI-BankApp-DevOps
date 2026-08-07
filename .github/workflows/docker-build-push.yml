@@ -4,6 +4,8 @@ on:
     secrets:
       DOCKERHUB_USERNAME: { required: true }
       DOCKERHUB_TOKEN: { required: true }
+    inputs:
+      Tag: { required: true, type: string }
       
 jobs:
   docker_build:
@@ -21,5 +23,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bankapp:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bankapp:${{ inputs.Tag }}
         

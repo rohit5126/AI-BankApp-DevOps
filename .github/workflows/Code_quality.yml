@@ -48,6 +48,4 @@ jobs:
       - name: code linting using checkstyle
         run: mvn checkstyle:check -Dcheckstyle.failOnViolation=false
 
-      - name: build code with maven
-        run: chmod +x mvnw && ./mvnw clean package -DskipTests -B 
         

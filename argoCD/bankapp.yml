@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bankapp
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/rohit5126/AI-BankApp-DevOps.git
+    targetRevision: actions
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: newbankapp
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
