@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/rohit5126/AI-BankApp-DevOps.git
-    targetRevision: actions
+    targetRevision: open-tele
     path: Monitoring
   destination:
     server: https://kubernetes.default.svc
