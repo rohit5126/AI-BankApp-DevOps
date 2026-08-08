@@ -18,7 +18,8 @@ RUN chown bankapp:bankapp /app
 RUN mkdir -p /otel && \
     wget -q -O /otel/opentelemetry-javaagent.jar \
     https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.20.0/opentelemetry-javaagent.jar \
-    && test -s /otel/opentelemetry-javaagent.jar
+    && test -s /otel/opentelemetry-javaagent.jar \
+    && chmod 644 /otel/opentelemetry-javaagent.jar
   
 COPY --from=builder /app/target/*.jar app.jar
 
