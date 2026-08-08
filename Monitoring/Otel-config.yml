@@ -32,15 +32,15 @@ data:
           insecure: true
       prometheusremotewrite:
         endpoint: http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
-      logging:
-        loglevel: warn   # useful for debugging; drop or lower verbosity once stable
+      debug:
+        verbosity: normal
 
     service:
       pipelines:
         traces:
           receivers: [otlp]
           processors: [memory_limiter, resource, batch]
-          exporters: [otlp/tempo, logging]
+          exporters: [otlp/tempo, debug]
         metrics:
           receivers: [otlp]
           processors: [memory_limiter, resource, batch]
