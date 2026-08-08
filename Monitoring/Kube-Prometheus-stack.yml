@@ -35,6 +35,18 @@ spec:
               type: loki
               url: http://loki-stack.monitoring.svc.cluster.local:3100
               access: proxy
+
+            - name: Tempo
+              type: tempo
+              url: http://tempo.monitoring.svc.cluster.local:3100
+              access: proxy
+              jsonData:
+                tracesToLogsV2:
+                  datasourceUid: loki
+                  spanStartTimeShift: "-1h"
+                  spanEndTimeShift: "1h"
+                nodeGraph:
+                  enabled: true
         prometheus:
           prometheusSpec:
             retention: 15d
