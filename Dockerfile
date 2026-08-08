@@ -15,6 +15,8 @@ WORKDIR /app
 RUN addgroup -S bankapp && adduser -S -G bankapp bankapp
 RUN chown bankapp:bankapp /app
 
+ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.20.0/opentelemetry-javaagent.jar /otel/opentelemetry-javaagent.jar
+
 COPY --from=builder /app/target/*.jar app.jar
 
 EXPOSE 8080

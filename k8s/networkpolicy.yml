@@ -46,6 +46,17 @@ spec:
         - port: 11434
 
     - to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: monitoring
+        podSelector:
+          matchLabels:
+            app: otel-collector
+      ports:
+        - protocol: TCP
+          port: 4317
+
+    - to:
         - podSelector:
             matchLabels:
               app: mysql-app

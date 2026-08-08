@@ -56,8 +56,25 @@ spec:
               value: redis
             - name: REDIS_PORT
               value: "6379"
+            - name: JAVA_TOOL_OPTIONS
+              value: "-javaagent:/otel/opentelemetry-javaagent.jar"
+            - name: OTEL_SERVICE_NAME
+              value: "bankapp"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://otel-collector.monitoring:4317"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "grpc"
+            - name: OTEL_TRACES_SAMPLER
+              value: "parentbased_traceidratio"
+            - name: OTEL_TRACES_SAMPLER_ARG
+              value: "1.0"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "deployment.environment=production"
+            - name: OTEL_METRICS_EXPORTER
+              value: "none"
           securityContext:
             runAsNonRoot: true
             runAsUser: 100
             runAsGroup: 101
             allowPrivilegeEscalation: false
+
