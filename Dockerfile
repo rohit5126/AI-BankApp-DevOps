@@ -15,7 +15,7 @@ WORKDIR /app
 RUN addgroup -S bankapp && adduser -S -G bankapp bankapp
 RUN chown bankapp:bankapp /app
 
-RUN wget -O /otel/opentelemetry-javaagent.jar \
+RUN wget -q -O /otel/opentelemetry-javaagent.jar \
   https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.20.0/opentelemetry-javaagent.jar \
   && test -s /otel/opentelemetry-javaagent.jar
   
