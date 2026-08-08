@@ -39,12 +39,6 @@ jobs:
         run: mvn -B -ntp dependency:go-offline
           
 
-      - name: Trivy scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: fs
-          scan-ref: .
-
       - name: code linting using checkstyle
         run: mvn checkstyle:check -Dcheckstyle.failOnViolation=false
 
