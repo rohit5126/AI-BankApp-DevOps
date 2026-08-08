@@ -53,8 +53,6 @@ kind: Service
 metadata:
   name: otel-collector
   namespace: monitoring
-  annotations:
-    argocd.argoproj.io/sync-wave: "-1"
   labels:
     app: otel-collector
 spec:
