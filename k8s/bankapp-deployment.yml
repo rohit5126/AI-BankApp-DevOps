@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: bankapp-container
-          image: rohit5126/bankapp:bbebdb8
+          image: rohit5126/bankapp:5aa2315
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -77,4 +77,3 @@ spec:
             runAsUser: 100
             runAsGroup: 101
             allowPrivilegeEscalation: false
-
