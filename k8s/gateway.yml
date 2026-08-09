@@ -3,7 +3,7 @@ kind: GatewayClass
 metadata:
   name: envoy
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   controllerName: gateway.envoyproxy.io/gatewayclass-controller
 
@@ -15,7 +15,7 @@ metadata:
   name: bankapp-gateway
   namespace: newbankapp
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   gatewayClassName: envoy
   listeners:
@@ -34,7 +34,7 @@ metadata:
   name: bankapp-route
   namespace: newbankapp
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   parentRefs:
     - name: bankapp-gateway

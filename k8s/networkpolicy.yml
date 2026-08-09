@@ -5,7 +5,7 @@ metadata:
   name: default-deny-all
   namespace: newbankapp
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   podSelector: {}
   policyTypes:
@@ -19,6 +19,8 @@ kind: NetworkPolicy
 metadata: 
   name: bankapp-policy
   namespace: newbankapp
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
 spec: 
   podSelector:
     matchLabels:
@@ -70,6 +72,8 @@ kind: NetworkPolicy
 metadata: 
   name: redis-policy
   namespace: newbankapp
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
 spec:   
   podSelector:
     matchLabels:
@@ -93,6 +97,8 @@ kind: NetworkPolicy
 metadata: 
   name: ollama-policy
   namespace: newbankapp
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
 spec: 
   podSelector:
     matchLabels:
@@ -124,6 +130,8 @@ kind: NetworkPolicy
 metadata:
   name: mysql-policy
   namespace: newbankapp
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   podSelector:
     matchLabels:
