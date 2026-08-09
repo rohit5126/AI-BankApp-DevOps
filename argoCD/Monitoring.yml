@@ -3,13 +3,15 @@ kind: Application
 metadata:
   name: monitoring-stack-root
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: https://github.com/rohit5126/AI-BankApp-DevOps.git
-    targetRevision: actions
+    targetRevision: mega-project
     path: Monitoring
   destination:
     server: https://kubernetes.default.svc
