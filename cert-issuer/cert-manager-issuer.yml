@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: rohit5126kumar@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-key
+    solvers:
+      - dns01:
+          webhook:
+            groupName: acme.duckdns.org
+            solverName: duckdns
+            config:
+              zoneName: bankappai         # your DuckDNS subdomain, WITHOUT ".duckdns.org"
+              secretName: duckdns-token   # the k8s Secret created by ESO

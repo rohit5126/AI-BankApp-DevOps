@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-webhook-duckdns
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://csp33.github.io/cert-manager-duckdns-webhook
+    chart: cert-manager-duckdns-webhook
+    targetRevision: 1.1.3
+    helm:
+      releaseName: cert-manager-duckdns-webhook
+      valuesObject:
+        clusterIssuer:
+          email: rohit5126kumar@gmail.com
+          production:
+            create: false
+          staging:
+            create: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
