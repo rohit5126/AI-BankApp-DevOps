@@ -14,5 +14,7 @@ spec:
             groupName: acme.duckdns.org   # was: acme.mycompany.com
             solverName: duckdns
             config:
+              apiTokenSecretRef:             # ✓ correct nested structure
+                name: duckdns-token
+                key: token                # must match the actual key inside the Secret
               zoneName: bankappai
-              secretName: duckdns-token
