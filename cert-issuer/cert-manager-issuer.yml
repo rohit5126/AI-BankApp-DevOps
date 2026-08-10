@@ -11,8 +11,8 @@ spec:
     solvers:
       - dns01:
           webhook:
-            groupName: acme.mycompany.com
+            groupName: acme.duckdns.org   # was: acme.mycompany.com
             solverName: duckdns
             config:
-              zoneName: bankappai         # your DuckDNS subdomain, WITHOUT ".duckdns.org"
-              secretName: duckdns-token   # the k8s Secret created by ESO
+              zoneName: bankappai
+              secretName: duckdns-token
