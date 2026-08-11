@@ -8,7 +8,7 @@ metadata:
 spec:
   secretName: bankapp-tls-secret
   issuerRef:
-    name: letsencrypt-prod
+    name: duckdns-letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
     - "bankappai.duckdns.org"

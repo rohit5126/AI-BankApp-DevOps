@@ -17,10 +17,12 @@ spec:
       releaseName: cert-manager-duckdns-webhook
       valuesObject:
         groupName: acme.duckdns.org
+        token:
+          value: ecdaa977-9ad9-443f-af09-4397abfbbd3f
         clusterIssuer:
           email: rohit5126kumar@gmail.com
           production:
-            create: false
+            create: true
           staging:
             create: false
   destination:
