@@ -1,5 +1,5 @@
 - name: Verify the machine is ready
-  hosts: devboard
+  hosts: bankapp
   become: true
 
   tasks:
