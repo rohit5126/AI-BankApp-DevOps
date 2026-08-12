@@ -51,27 +51,15 @@
         mode: "0755"
         creates: /usr/local/bin/terraform
 
-    - name: Find the current kubectl version
-      ansible.builtin.uri:
-        url: https://dl.k8s.io/release/stable-1.34.txt
-        return_content: true
-      register: kubectl_release
-
     - name: Install kubectl
       ansible.builtin.get_url:
-        url: "https://dl.k8s.io/release/{{ kubectl_release.content | trim }}/bin/linux/{{ go_arch }}/kubectl"
+        url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/{{ go_arch }}/kubectl"
         dest: /usr/local/bin/kubectl
         mode: "0755"
 
-    - name: Find the current Helm version
-      ansible.builtin.uri:
-        url: https://get.helm.sh/helm-latest-version
-        return_content: true
-      register: helm_release
-
     - name: Unpack Helm
       ansible.builtin.unarchive:
-        src: "https://get.helm.sh/helm-{{ helm_release.content | trim }}-linux-{{ go_arch }}.tar.gz"
+        src: "https://get.helm.sh/helm-{{ helm_version }}-linux-{{ go_arch }}.tar.gz"
         dest: /tmp
         remote_src: true
         creates: "/tmp/linux-{{ go_arch }}/helm"
