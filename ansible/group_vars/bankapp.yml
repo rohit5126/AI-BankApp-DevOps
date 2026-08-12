@@ -1,11 +1,14 @@
-aws_region: us-west-2
+aws_region: eu-north-1
 
 login_user: ubuntu
 
 kubectl_version: v1.34
 
-aws_access_key: ""
+aws_access_key: "G75DTfksrvyOahKcTDiO1E5TVx2Uxe2q60Hrx9uC"
 
-repo_url: https://github.com/rohit5126/AI-BankApp-DevOps/
+repo_url: https://github.com/rohit5126/AI-BankApp-DevOps.git
 repo_branch: mega-project
+
+repo_url_EKS: https://github.com/rohit5126/terraform_format_notes.git
+repo_branch_EKS: main
 
