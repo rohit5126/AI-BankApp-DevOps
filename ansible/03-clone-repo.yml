@@ -1,5 +1,5 @@
 - name: Clone the DevBoard repo
-  hosts: devboard
+  hosts: bankapp
   become: true
 
   tasks:
