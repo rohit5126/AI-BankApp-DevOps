@@ -1,0 +1,11 @@
+aws_region: us-west-2
+
+login_user: ubuntu
+
+kubectl_version: v1.34
+
+aws_access_key: ""
+
+repo_url: https://github.com/rohit5126/AI-BankApp-DevOps/
+repo_branch: mega-project
+
