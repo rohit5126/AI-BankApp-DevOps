@@ -155,4 +155,11 @@ kube-rometheus satck should be deployed after grafana-admin-secret exists
 
 ```
 
+### delete at the end
+
+```
+aws secretsmanager delete-secret --secret-id bankapp/mysql --force-delete-without-recovery
+
+aws secretsmanager delete-secret --secret-id bankapp/grafana-admin --force-delete-without-recovery
+```
 
