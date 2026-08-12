@@ -1,0 +1,24 @@
+- name: Clone the DevBoard repo
+  hosts: devboard
+  become: true
+
+  tasks:
+    - name: Clone the repo for bankapp app
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "/home/{{ login_user }}/bankapp"
+        version: "{{ repo_branch }}"
+        # false so a re-run never throws away local edits
+        update: false
+      become: true
+      become_user: "{{ login_user }}"
+
+    - name: Clone the repo for terraform cluster
+      ansible.builtin.git:
+        repo: "{{ repo_url_EKS }}"
+        dest: "/home/{{ login_user }}/terraform"
+        version: "{{ repo_branch_EKS }}"
+        # false so a re-run never throws away local edits
+        update: false
+      become: true
+      become_user: "{{ login_user }}"
