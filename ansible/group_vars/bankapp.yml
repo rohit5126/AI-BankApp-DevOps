@@ -4,7 +4,7 @@ login_user: ubuntu
 
 kubectl_version: v1.34
 
-aws_access_key: "G75DTfksrvyOahKcTDiO1E5TVx2Uxe2q60Hrx9uC"
+aws_access_key: "AKIATW3J5Q5SG5QFXKE3"
 
 repo_url: https://github.com/rohit5126/AI-BankApp-DevOps.git
 repo_branch: mega-project
