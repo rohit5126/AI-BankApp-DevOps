@@ -24,7 +24,8 @@ spec:
               root_url: "%(protocol)s://%(domain)s/monitoring/"
               serve_from_sub_path: true
           admin:
-            existingSecret: grafana-admin-secret     
+            existingSecret: grafana-admin-secret
+            userKey: admin-user
             passwordKey: admin-password
           service:
             type: ClusterIP
