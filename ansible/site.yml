@@ -1,7 +1,7 @@
 ---
 
 - name: Install the deployment tools
-  ansible.builtin.import_playbook: install-tools.yml
+  ansible.builtin.import_playbook: install_tools.yml
 
 - name: Configure AWS and the shell
   ansible.builtin.import_playbook: 02-configure-aws.yml
