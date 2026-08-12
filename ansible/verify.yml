@@ -14,7 +14,6 @@
         - jq --version
         - dig -v
         - git --version
-        - gh --version
       register: tool_check
       changed_when: false
 
