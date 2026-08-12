@@ -4,7 +4,7 @@
 
   vars:
     # Ansible says x86_64 / aarch64; these downloads say amd64 / arm64.
-    go_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+    go_arch: "{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else 'amd64' }}"
 
   tasks:
     - name: Install what Ubuntu already ships
@@ -20,7 +20,7 @@
 
     - name: Download the AWS CLI
       ansible.builtin.get_url:
-        url: "https://awscli.amazonaws.com/awscli-exe-linux-{{ ansible_architecture }}.zip"
+        url: "https://awscli.amazonaws.com/awscli-exe-linux-{{ ansible_facts['architecture'] }}.zip"
         dest: /tmp/awscli.zip
         mode: "0644"
 
