@@ -1,7 +1,7 @@
 name: all-check-passed-pushed
 on: 
   push:
-    branches: [actions]
+    branches: [mega-project]
     paths:
       - 'src/**'
       - 'pom.xml'
