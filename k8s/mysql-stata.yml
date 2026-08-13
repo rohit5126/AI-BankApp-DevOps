@@ -23,6 +23,7 @@ metadata:
   namespace: newbankapp
   annotations:
     argocd.argoproj.io/sync-wave: "2"
+    reloader.stakater.com/auto: "true"
   labels: 
     app: mysql-app
 spec:
