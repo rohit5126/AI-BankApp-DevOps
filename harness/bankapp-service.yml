@@ -1,0 +1,9 @@
+service:
+  name: bankapp
+  identifier: bankapp
+  serviceDefinition:
+    type: Kubernetes
+    spec: {}
+  gitOpsEnabled: true
+  orgIdentifier: default
+  projectIdentifier: default_project
