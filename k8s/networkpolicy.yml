@@ -145,3 +145,8 @@ spec:
               app: bankapp
       ports:
         - port: 3306
+    - from:
+        - ipBlock:
+            cidr: 10.0.0.0/16              # VPC CIDR,
+      ports:
+        - port: 3306
