@@ -5,6 +5,7 @@ metadata:
   namespace: newbankapp
   annotations:
     argocd.argoproj.io/sync-wave: "3"
+    reloader.stakater.com/auto: "true"
   labels:
     app: bankapp
 spec:
