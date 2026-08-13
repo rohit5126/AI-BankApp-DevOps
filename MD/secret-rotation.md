@@ -138,6 +138,21 @@ aws logs tail /aws/lambda/bankapp-mysql-rotation --region eu-north-1 --since 1d
 aws secretsmanager cancel-rotate-secret --secret-id bankapp/mysql --region eu-north-1
 cancel the currect stuck rotation
 
+aws secretsmanager get-secret-value --secret-id bankapp/mysql --region eu-north-1 --query SecretString --output text
+hows the pass in secret manager
+
+update the secret manually with new external-IP of mysql-loadbalancer-elb
+aws secretsmanager put-secret-value \
+  --secret-id bankapp/mysql \
+  --region eu-north-1 \
+  --secret-string '{"engine":"mysql","host":"acd55e35ea9344c158f02db97576fe25-df46a853f7cecd40.elb.eu-north-1.amazonaws.com","port":3306,"username":"root","password":"UFXhaIfWUKQS","dbname":"bankapp"}'
+
+then run
+
+aws secretsmanager cancel-rotate-secret --secret-id bankapp/mysql --region eu-north-1
+aws secretsmanager rotate-secret --secret-id bankapp/mysql --region eu-north-1
+aws logs tail /aws/lambda/bankapp-mysql-rotation --region eu-north-1 --follow
+
 ```
 
 IMPORTANT ->
