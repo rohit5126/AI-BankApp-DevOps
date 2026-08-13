@@ -148,6 +148,14 @@ admin:
 
 ```
 
+**get grafana admin secret**
+```
+kubectl get secret grafana-admin-secret -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d
+
+kubectl get pod -n monitoring -l app.kubernetes.io/name=grafana -o jsonpath='{.items[0].spec.containers[0].env}' | grep -i admin
+
+```
+
 **things to amke sure is order of deployment**
 
 ```
