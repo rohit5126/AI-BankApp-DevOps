@@ -11,6 +11,8 @@ helm repo update gitops-agent-byoa
 helm install harness  gitops-agent-byoa/gitops-helm-byoa --values override.yaml --namespace argocd
 
 ```
+For more Info what below youtube video
 
+https://youtu.be/Lmcw4s299_0?si=KiW7l1iVUQ8woexR
 
  
