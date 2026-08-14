@@ -19,7 +19,7 @@ pipeline:
             steps:
               - step:
                   type: GitOpsUpdateReleaseRepo
-                  name: Update Release Repo
+                  name: UpdateReleaseRepo
                   identifier: updateReleaseRepo
                   timeout: 10m
                   spec:
