@@ -89,7 +89,10 @@ pipeline:
             rollbackSteps: []
           environment:
             environmentRef: bankprod
-            deployToAll: true
+            deployToAll: false
+            gitOpsClusters:
+              - identifier: incluster
+                agentIdentifier: bankapp
         tags: {}
         failureStrategies:
           - onFailure:
