@@ -22,7 +22,9 @@ pipeline:
                   name: Update Release Repo
                   identifier: updateReleaseRepo
                   timeout: 10m
-                  spec: {}
+                  spec:
+                    variables: []
+                    ignoreMissingFiles: true
               - step:
                   type: MergePR
                   name: Merge PR
