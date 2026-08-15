@@ -114,7 +114,7 @@ BankApp is a demo banking web app built with:
       └───────────────────────────────────────────────────────┘
 ```
 
-All internal traffic (bankapp → MySQL, bankapp → Redis, bankapp → Ollama) stays inside the cluster. Only the Envoy Gateway's load balancer is internet-facing, fronted by TLS terminated using a cert-manager-issued certificate for the DuckDNS hostname. ArgoCD itself is only reachable via port-forward / its own internal Gateway route (see §9.6), it is not exposed the same way as the bank app.
+All internal traffic (bankapp → MySQL, bankapp → Redis, bankapp → Ollama) stays inside the cluster. Only the Envoy Gateway's load balancer is internet-facing, fronted by TLS terminated using a cert-manager-issued certificate for the DuckDNS hostname. ArgoCD itself is only reachable via port-forward / its own internal Gateway route, it is not exposed the same way as the bank app.
 
 ![argocd-app-of-apps-tree](screenshots/argocd-app-of-apps-tree.png)
 
