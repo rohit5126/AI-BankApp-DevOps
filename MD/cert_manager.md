@@ -61,11 +61,11 @@ kubectl get gateway -n newbankapp -0 wide  - to get the lb address
 
 dig +short <a4d25a7...lb -address>  - to get the ip add of the load balancer.
 
-curl "https://www.duckdns.org/update?domains=bankappai&token=ecdaa977-9ad9-443f-af09-4397abfbbd3f&ip=13.63.52.172" - update ip in the domain
+curl "https://www.duckdns.org/update?domains=aibankapp&token=ecdaa977-9ad9-443f-af09-4397abfbbd3f&ip=13.63.52.172" - update ip in the domain
 
 #wait for few minutes than run curl
 
-curl -I https://bankappai.duckdns.org
+curl -I https://aibankapp.duckdns.org
 
 nslookup bankappai.duckdns.org
 
