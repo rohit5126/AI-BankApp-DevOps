@@ -3,7 +3,7 @@ kind: GatewayClass
 metadata:
   name: envoy
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   controllerName: gateway.envoyproxy.io/gatewayclass-controller
 
@@ -15,16 +15,21 @@ metadata:
   name: bankapp-gateway
   namespace: newbankapp
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   gatewayClassName: envoy
   listeners:
-  - name: http
-    protocol: HTTP
-    port: 80
-    allowedRoutes:
-      namespaces:
-        from: All
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "aibankapp.duckdns.org"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: bankapp-tls-secret
+      allowedRoutes:
+        namespaces:
+          from: All
 
 ---
 
@@ -34,7 +39,7 @@ metadata:
   name: bankapp-route
   namespace: newbankapp
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   parentRefs:
     - name: bankapp-gateway

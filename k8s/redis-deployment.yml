@@ -4,7 +4,7 @@ metadata:
   name: redis-dep
   namespace: newbankapp
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "2"
   labels: 
     app: redis
 spec: 
@@ -43,7 +43,7 @@ metadata:
   name: redis
   namespace: newbankapp
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   selector:
     app: redis

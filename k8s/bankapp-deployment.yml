@@ -4,7 +4,8 @@ metadata:
   name: bankapp-dep
   namespace: newbankapp
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
+    reloader.stakater.com/auto: "true"
   labels:
     app: bankapp
 spec:
@@ -19,7 +20,11 @@ spec:
     spec:
       containers:
         - name: bankapp-container
+<<<<<<< Updated upstream
           image: rohit5126/bankapp:69c344b
+=======
+          image: rohit5126/bankapp:74c2f0f
+>>>>>>> Stashed changes
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

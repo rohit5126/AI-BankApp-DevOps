@@ -1,0 +1,13 @@
+---
+
+- name: Install the deployment tools
+  ansible.builtin.import_playbook: install_tools.yml
+
+- name: Configure AWS and the shell
+  ansible.builtin.import_playbook: 02-configure-aws.yml
+
+- name: Clone the DevBoard repo
+  ansible.builtin.import_playbook: 03-clone-repo.yml
+
+- name: Verify the machine is ready
+  ansible.builtin.import_playbook: verify.yml
