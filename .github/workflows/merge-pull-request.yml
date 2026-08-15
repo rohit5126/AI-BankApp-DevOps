@@ -6,7 +6,7 @@ on:
       - 'src/**'
       - 'pom.xml'
       - 'Dockerfile'
-      - 'MD'
+      - 'MD/**'
   workflow_dispatch:
 
 permissions:
