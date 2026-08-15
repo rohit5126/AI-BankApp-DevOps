@@ -1,0 +1,50 @@
+name: Merge-Pull-Request
+on: 
+  push:
+    branches: [master]
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+      - 'Dockerfile'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  
+jobs:
+  Sonar-Quality-Scan:
+    uses: ./.github/workflows/SonarScan.yml
+    with:
+      SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+    secrets: 
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  Generate-tags:
+    runs-on: ubuntu-latest
+    outputs:
+      short-sha: ${{ steps.tag.outputs.sha_short }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set image tag
+        id: tag
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      
+  Docker-Build-Push:
+    needs: [Generate-tags]
+    uses: ./.github/workflows/docker-build-push.yml
+    with:
+      Tag: ${{ needs.Generate-tags.outputs.short-sha }}
+    secrets: 
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  ArgoCD-deployment:
+    needs: [Docker-Build-Push, Generate-tags]
+    uses: ./.github/workflows/gitops_bump.yml
+    with:
+      Tag: ${{ needs.Generate-tags.outputs.short-sha }}
+  
+
+  
