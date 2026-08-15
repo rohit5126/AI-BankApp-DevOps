@@ -22,7 +22,7 @@ spec:
     - name: https
       protocol: HTTPS
       port: 443
-      hostname: "bankappai.duckdns.org"
+      hostname: "aibankapp.duckdns.org"
       tls:
         mode: Terminate
         certificateRefs:

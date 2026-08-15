@@ -11,4 +11,4 @@ spec:
     name: duckdns-letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-    - "bankappai.duckdns.org"
+    - "aibankapp.duckdns.org"
