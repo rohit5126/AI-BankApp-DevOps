@@ -1,4 +1,4 @@
-## for secret rotation to improve security ..
+## for secret rotation to improve security .
 
 ### update secret.tf
 ```
