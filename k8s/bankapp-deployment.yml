@@ -20,11 +20,7 @@ spec:
     spec:
       containers:
         - name: bankapp-container
-<<<<<<< Updated upstream
           image: rohit5126/bankapp:69c344b
-=======
-          image: rohit5126/bankapp:74c2f0f
->>>>>>> Stashed changes
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
