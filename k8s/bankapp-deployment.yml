@@ -65,21 +65,24 @@ spec:
 
 ---
 
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
 metadata:
-  name: bankapp-route
+  name: frontend-hpa
   namespace: newbankapp
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
-  parentRefs:
-    - name: bankapp-gateway
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      backendRefs:
-        - name: bankapp-svc
-          port: 80
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bankapp-dep
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
