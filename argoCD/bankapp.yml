@@ -11,7 +11,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/rohit5126/AI-BankApp-DevOps.git
-    targetRevision: mega-project
+    targetRevision: master
     path: k8s
   destination:
     server: https://kubernetes.default.svc
