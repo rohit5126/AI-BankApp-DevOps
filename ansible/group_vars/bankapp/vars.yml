@@ -9,7 +9,7 @@ aws_access_key: "{{ vault_aws_access_key }}"
 aws_secret_key: "{{ vault_aws_secret_key }}"
 
 repo_url: https://github.com/rohit5126/AI-BankApp-DevOps.git
-repo_branch: mega-project
+repo_branch: master
 
 repo_url_EKS: https://github.com/rohit5126/terraform_format_notes.git
 repo_branch_EKS: main
