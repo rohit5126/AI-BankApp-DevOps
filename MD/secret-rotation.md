@@ -145,7 +145,7 @@ update the secret manually with new external-IP of mysql-loadbalancer-elb
 aws secretsmanager put-secret-value \
   --secret-id bankapp/mysql \
   --region eu-north-1 \
-  --secret-string '{"engine":"mysql","host":"a91861c8a31934fc28274795c044c029-6b2c75dd6a4c9937.elb.eu-north-1.amazonaws.com","port":3306,"username":"root","password":"dEYfw1gXzzhK","dbname":"bankapp"}'
+  --secret-string '{"engine":"mysql","host":"a92a5271a8ea04f5189ff1676c9539df-a0d0a920d01fd5eb.elb.eu-north-1.amazonaws.com","port":3306,"username":"root","password":"dEYfw1gXzzhK","dbname":"bankapp"}'
 
 then run
 
