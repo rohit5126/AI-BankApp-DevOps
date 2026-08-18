@@ -28,6 +28,18 @@ why each file is needed and their importance:
 
 - envouyproxy setup
 > this is telling envoy gateway to attach speciic aws annotation to the underlying k8s service it creates.
-> annotations required
-> 
+- annotations required
+> aws-load-balancer-type: external -> his is the signal that tells the in-tree cloud provider (the default one built into EKS) to back off and ignore this Service entirely, handing control to the AWS Load Balancer Controller instead.
+
+> aws-load-balancer-nlb-target-type: instance -> tells the controller how traffic should actually be routed once it hits the NLB: to node instances
+> then to pods via kube-proxy.
+
+> aws-load-balancer-scheme: internet-facing -> IP allocation is explicitly only supported for internet-facing NLBs.
+> and your app needs to be reachable from the public internet anyway, so this has to be set explicitly rather than relying on a default.
+
+> aws-load-balancer-eip-allocations -> his is the actual instruction that connects Step 2's Elastic IPs to this specific load balancer. this is were we enter the arn from the output.
+
+- GatewayClass update
+> update getway class to point to envoy proxy using parametersref with name, namespace and kind.
+
 
