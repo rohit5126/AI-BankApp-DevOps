@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: bankapp-container
-          image: rohit5126/bankapp:77431a8
+          image: rohit5126/bankapp:8fc0f88
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -62,7 +62,6 @@ spec:
             runAsUser: 100
             runAsGroup: 101
             allowPrivilegeEscalation: false
-
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -85,3 +84,7 @@ spec:
         target:
           type: Utilization
           averageUtilization: 75
+  template:
+    spec:
+      containers:
+        - image: rohit5126/bankapp:8fc0f88
