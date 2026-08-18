@@ -3,6 +3,8 @@ kind: EnvoyProxy
 metadata:
   name: bankapp-envoy-proxy
   namespace: envoy-gateway-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   provider:
     type: Kubernetes
