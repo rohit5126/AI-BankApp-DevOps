@@ -1,0 +1,17 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: bankapp-envoy-proxy
+  namespace: envoy-gateway-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        annotations:
+          service.beta.kubernetes.io/aws-load-balancer-type: "external"
+          service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "instance"
+          service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+          service.beta.kubernetes.io/aws-load-balancer-eip-allocations: "eipalloc-036460c9b035c4a22,eipalloc-06b97ffd6a7b35f20"
