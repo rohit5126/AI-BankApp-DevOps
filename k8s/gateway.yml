@@ -6,6 +6,11 @@ metadata:
     argocd.argoproj.io/sync-wave: "3"
 spec:
   controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: bankapp-envoy-proxy
+    namespace: envoy-gateway-system
 
 ---
 
