@@ -43,3 +43,13 @@ why each file is needed and their importance:
 > update getway class to point to envoy proxy using parametersref with name, namespace and kind.
 
 
+#### get the IP address of all AZ
+
+```
+aws elbv2 describe-load-balancers --region eu-north-1 \
+  --query "LoadBalancers[?contains(DNSName, 'envoynew-39a5dc42c2')].LoadBalancerArn" --output text
+
+aws elbv2 describe-load-balancers --region eu-north-1 --load-balancer-arns <arn-from-above> \
+  --query "LoadBalancers[0].AvailabilityZones[].LoadBalancerAddresses"
+
+```
