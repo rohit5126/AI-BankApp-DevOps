@@ -21,7 +21,6 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   Generate-tags:
-    needs: [Sonar-Quality-Scan]
     runs-on: ubuntu-latest
     outputs:
       short-sha: ${{ steps.tag.outputs.sha_short }}
