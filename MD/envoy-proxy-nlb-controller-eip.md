@@ -18,5 +18,16 @@ why each file is needed and their importance:
 > EKS OIDC provider lets AWS trust k8s service account to have permission and attached via IAM policy. without this the pod would not be able to call the API and fail with an unauthorized error.
 
 - Allocate Elastic IPs (Terraform)
+> you are creating a fixed IP add in AWS. this is the actual solution to the problem. A load balancer or kubernetes cannot create its own IP, it has to come from a real > AWS resource.A NLB normally gets a new network interface (and therefore a new IP) every time it's created or its underlying infrastructure changes.
+> When you instead attach pre-allocated EIPs to the NLB's subnet mappings, AWS binds those specific, permanent addresses to the load balancer's front end instead of
+> letting it generate its own
+
+- lb-controller
+> we register a new AWS controller as a child app using helm. A controller is a software that runs in your cluster. that watches over service, gateway object and
+> translate them into real aws lb resource. the role created in step 1 is attached to the controller for IRSA.
+
+- envouyproxy setup
+> this is telling envoy gateway to attach speciic aws annotation to the underlying k8s service it creates.
+> annotations required
 > 
 
